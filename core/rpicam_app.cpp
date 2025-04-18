@@ -161,9 +161,10 @@ void RPiCamApp::OpenCamera()
 
 	if (!options_->post_process_file.empty())
 	{
-		post_processor_.LoadModules(options_->post_process_libs);
 		std::cout << "post processing path : " << options_->post_process_libs << std::endl;
+		post_processor_.LoadModules(options_->post_process_libs);
 		post_processor_.Read(options_->post_process_file);
+
 	}
 	// The queue takes over ownership from the post-processor.
 	post_processor_.SetCallback(
