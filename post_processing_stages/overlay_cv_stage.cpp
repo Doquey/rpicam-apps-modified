@@ -50,10 +50,10 @@ struct CachedOverlay
 	steady_clock::time_point last_updated;
 };
  
-class AnnotateCvStage : public PostProcessingStage
+class OverlayCVStage : public PostProcessingStage
 {
 public:
-	AnnotateCvStage(RPiCamApp *app) : PostProcessingStage(app) {}
+	OverlayCVStage(RPiCamApp *app) : PostProcessingStage(app) {}
  
 	char const *Name() const override;
  
@@ -77,12 +77,12 @@ private:
  
 #define NAME "overlay_cv"
  
-char const *AnnotateCvStage::Name() const
+char const *OverlayCVStage::Name() const
 {
 	return NAME;
 }
  
-void AnnotateCvStage::ParsePosition(const std::string &pos_str, int &pos, int base)
+void OverlayCVStage::ParsePosition(const std::string &pos_str, int &pos, int base)
 {
 	if (pos_str.empty()) 
 	{
@@ -99,7 +99,7 @@ void AnnotateCvStage::ParsePosition(const std::string &pos_str, int &pos, int ba
 	}
 }
  
-void AnnotateCvStage::Read(boost::property_tree::ptree const &params)
+void OverlayCVStage::Read(boost::property_tree::ptree const &params)
 {
 	auto overlays_node = params.get_child_optional("annotate_cv");
 	if (overlays_node)
@@ -128,11 +128,11 @@ void AnnotateCvStage::Read(boost::property_tree::ptree const &params)
 	}
 }
  
-void AnnotateCvStage::Configure()
+void OverlayCVStage::Configure()
 {
     stream_ = app_->GetMainStream();
     if (!stream_ || stream_->configuration().pixelFormat != libcamera::formats::YUV420)
-        throw std::runtime_error("AnnotateCvStage: only YUV420 format supported");
+        throw std::runtime_error("OverlayCVStage: only YUV420 format supported");
     info_ = app_->GetStreamInfo(stream_);
 
     for (auto &config : overlays_)
@@ -158,7 +158,7 @@ void AnnotateCvStage::Configure()
         }
     }
 }
-void AnnotateCvStage::UpdateCachedOverlay(CachedOverlay &cached, const FrameInfo &info)
+void OverlayCVStage::UpdateCachedOverlay(CachedOverlay &cached, const FrameInfo &info)
 {
 	OverlayConfig &config = cached.config;
 	std::string text = info.ToString(config.text);
@@ -198,7 +198,7 @@ void AnnotateCvStage::UpdateCachedOverlay(CachedOverlay &cached, const FrameInfo
 	cached.cache = overlay_mat;
 	cached.last_updated = steady_clock::now();
 }
-bool AnnotateCvStage::Process(CompletedRequestPtr &completed_request)
+bool OverlayCVStage::Process(CompletedRequestPtr &completed_request)
 {
     BufferWriteSync w(app_, completed_request->buffers[stream_]);
 	libcamera::Span<uint8_t> buffer = w.Get()[0];
@@ -234,7 +234,7 @@ bool AnnotateCvStage::Process(CompletedRequestPtr &completed_request)
  
 static PostProcessingStage *Create(RPiCamApp *app)
 {
-	return new AnnotateCvStage(app);
+	return new OverlayCVStage(app);
 }
  
 static RegisterStage reg(NAME, &Create);
