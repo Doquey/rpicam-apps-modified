@@ -1,5 +1,5 @@
 {
-  "overlays": [
+  "overlay_cv": [
     {
       "text": "Timestamp: %Y-%m-%d %H:%M:%S",
       "update_interval": 1000,

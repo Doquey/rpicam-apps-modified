@@ -46,6 +46,7 @@ if opencv_dep.found()
         'sobel_cv_stage.cpp',
         'face_detect_cv_stage.cpp',
         'annotate_cv_stage.cpp',
+        'overlay_cv_stage.cpp',
         'plot_pose_cv_stage.cpp',
         'object_detect_draw_cv_stage.cpp',
     ])
