@@ -1,0 +1,15 @@
+{
+  "overlays": [
+    {
+      "text": "Timestamp: %Y-%m-%d %H:%M:%S",
+      "update_interval": 1000,
+      "x": "10%",
+      "y": "90%"
+    },
+    {
+      "text": "Static text example",
+      "x": "5%",
+      "y": "5%"
+    }
+  ]
+}
