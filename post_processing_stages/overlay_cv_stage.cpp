@@ -59,6 +59,23 @@ private:
     void GenerateCache(OverlayConfig &config, const std::string &text);
 };
 
+
+void OverlayCVStage::ParsePosition(const std::string &pos_str, int &pos, int base)
+{
+	if (pos_str.empty()) 
+	{
+		pos = 0;
+		return;
+	}
+	if (pos_str.back() == '%')
+	{
+		double percent = std::stod(pos_str.substr(0, pos_str.size() - 1)) / 100.0;
+		pos = static_cast<int>(base * percent);
+	} else 
+	{
+		pos = std::stoi(pos_str);
+	}
+}
 void OverlayCVStage::Read(boost::property_tree::ptree const &params)
 {
     LOG_DEBUG(Name(), "Read: got array of overlays:");
