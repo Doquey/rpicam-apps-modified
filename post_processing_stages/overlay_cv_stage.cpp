@@ -168,15 +168,13 @@ bool OverlayCVStage::Process(CompletedRequestPtr &completed_request)
 			bg_roi = bg_roi * (1 - config.alpha) + config.bg * config.alpha;
 		}
 
-		if (config.has_border && 
-			bg_rect.x >= 0 && bg_rect.y >= 0 && 
-			bg_rect.x + bg_rect.width <= frame.cols && 
-			bg_rect.y + bg_rect.height <= frame.rows)
+		if (config.has_border)
 		{
-			rectangle(frame, bg_rect, config.border_color, config.border_width);
+			putText(frame, text, Point(x_pos, y_pos), font, config.scale,
+					config.border_color, config.thickness + config.border_width, LINE_AA);
 		}
 
-		putText(frame, text, Point(x_pos, y_pos), font, config.scale, 
+		putText(frame, text, Point(x_pos, y_pos), font, config.scale,
 				config.fg, config.thickness, LINE_AA);
 	}
 
