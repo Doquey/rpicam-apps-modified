@@ -83,21 +83,26 @@ PostProcessor::~PostProcessor()
 	dynamic_stages_.clear();
 }
 
-void PostProcessor::LoadModules(const std::string &lib_dir)
-{
-	const fs::path path(!lib_dir.empty() ? lib_dir : POSTPROC_LIB_DIR);
-	const std::string ext(".so");
+void PostProcessor::LoadModules(const std::string& lib_dir) {
+    const std::vector<fs::path> paths = {
+        "/usr/lib/rpicam-apps-postproc/opencv-postproc.so",
+        "/usr/lib/rpicam-apps-postproc/core-postproc.so"
+    };
 
-	if (!fs::exists(path))
-		return;
+    try {
+        for (const auto& path : paths) {
+            std::cout << "Checking: " << path << std::endl;
 
-	// Dynamically load all .so files from the system postprocessing lib path.
-	// This will automatically register the stages with the factory.
-	for (auto const &p : fs::recursive_directory_iterator(path))
-	{
-		if (p.path().extension() == ext)
-			dynamic_stages_.emplace_back(p.path().string());
-	}
+            if (fs::exists(path) && fs::is_regular_file(path) && path.extension() == ".so") {
+                std::cout << "Loading: " << path << std::endl;
+                dynamic_stages_.emplace_back(path.string());
+            } else {
+                std::cerr << "Invalid library: " << path << std::endl;
+            }
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    }
 }
 
 void PostProcessor::Read(std::string const &filename)
