@@ -149,6 +149,7 @@ std::string OverlayCVStage::FormatText(const std::string &t, const FrameInfo &in
 }
 
 void OverlayCVStage::GenerateCache(OverlayConfig &config, const std::string &text) {
+
     if (text.empty()) {
         config.cached_roi.release();
         return;
@@ -156,8 +157,13 @@ void OverlayCVStage::GenerateCache(OverlayConfig &config, const std::string &tex
 
     int font = FONT_HERSHEY_SIMPLEX;
     int baseline = 0;
-	
-    Size text_size = getTextSize(text, font, config.scale, config.thickness, &baseline);
+
+    int effective_thickness = config.thickness;
+    if (config.has_border) {
+        effective_thickness += config.border_width;
+    }
+
+    Size text_size = getTextSize(text, font, config.scale, effective_thickness, &baseline);
 
     int x_pos = std::max(0, std::min(config.x, static_cast<int>(info_.width - text_size.width)));
     int y_pos = std::max(text_size.height + baseline, std::min(config.y, static_cast<int>(info_.height - baseline)));
@@ -165,16 +171,15 @@ void OverlayCVStage::GenerateCache(OverlayConfig &config, const std::string &tex
     Rect bg_rect(x_pos, y_pos - text_size.height, text_size.width, text_size.height + baseline);
     cv::Mat cached_roi(bg_rect.height, bg_rect.width, CV_8UC1);
 
-    if (config.has_bg)
-	{
+    if (config.has_bg) {
         cached_roi.setTo(config.bg);
     } else {
-        cached_roi.setTo(0); 
+        cached_roi.setTo(0);
     }
 
     if (config.has_border) {
-        rectangle(cached_roi, Rect(0, 0, bg_rect.width, bg_rect.height),
-                  config.border_color, config.border_width);
+        putText(cached_roi, text, Point(0, text_size.height), font, config.scale,
+                config.border_color, config.thickness + config.border_width, LINE_AA);
     }
 
     putText(cached_roi, text, Point(0, text_size.height), font, config.scale,
@@ -186,7 +191,6 @@ void OverlayCVStage::GenerateCache(OverlayConfig &config, const std::string &tex
     config.cached_height = bg_rect.height;
     config.cached_roi = cached_roi.clone();
 }
-
 bool OverlayCVStage::Process(CompletedRequestPtr &completed_request)
 {
     BufferWriteSync w(app_, completed_request->buffers[stream_]);
