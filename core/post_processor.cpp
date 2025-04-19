@@ -85,26 +85,15 @@ PostProcessor::~PostProcessor()
 
 void PostProcessor::LoadModules(const std::string& lib_dir) {
     const std::vector<fs::path> paths = {
-        "/usr/lib/rpicam-apps-postproc/opencv-postproc.so",
-        "/usr/lib/rpicam-apps-postproc/core-postproc.so"
+        "/usr/local/lib/rpicam-apps-postproc/opencv-postproc.so",
+        "/usr/local/lib/rpicam-apps-postproc/core-postproc.so"
     };
 
-    try {
-        for (const auto& path : paths) {
-            std::cout << "Checking: " << path << std::endl;
-
-            if (fs::exists(path) && fs::is_regular_file(path) && path.extension() == ".so") {
-                std::cout << "Loading: " << path << std::endl;
-                dynamic_stages_.emplace_back(path.string());
-            } else {
-                std::cerr << "Invalid library: " << path << std::endl;
-            }
+    for (const auto& path : paths) {
+        std::cout << "Checking: " << path << std::endl;
+        dynamic_stages_.emplace_back(path.string());
         }
-    } catch (const fs::filesystem_error& e) {
-        std::cerr << "Filesystem error: " << e.what() << std::endl;
-    }
 }
-
 void PostProcessor::Read(std::string const &filename)
 {
 	boost::property_tree::ptree root;
