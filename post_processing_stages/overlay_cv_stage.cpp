@@ -118,6 +118,23 @@ std::string OverlayCVStage::FormatText(const std::string &t, const FrameInfo &in
 	return (strftime(buf, sizeof(buf), s.c_str(), tm_p) !=0) ? std::string(buf) : s;
 }
 
+void OverlayCVStage::ParsePosition(const std::string &pos_str, int &pos, int base)
+{
+	if (pos_str.empty()) 
+	{
+		pos = 0;
+		return;
+	}
+	if (pos_str.back() == '%')
+	{
+		double percent = std::stod(pos_str.substr(0, pos_str.size() - 1)) / 100.0;
+		pos = static_cast<int>(base * percent);
+	} else 
+	{
+		pos = std::stoi(pos_str);
+	}
+}
+
 bool OverlayCVStage::Process(CompletedRequestPtr &completed_request)
 {
 	BufferWriteSync w(app_, completed_request->buffers[stream_]);
